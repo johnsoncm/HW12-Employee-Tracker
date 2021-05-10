@@ -1,0 +1,23 @@
+{
+  "name": "hw12-employee-tracker",
+  "version": "1.0.0",
+  "description": "app that tracks employees",
+  "main": "employeeTracker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnsoncm/HW12-Employee-Tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/johnsoncm/HW12-Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/johnsoncm/HW12-Employee-Tracker#readme",
+  "dependencies": {
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1"
+  }
+}
