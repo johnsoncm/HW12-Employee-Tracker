@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/johnsoncm/HW12-Employee-Tracker#readme",
   "dependencies": {
+    "figlet": "^1.5.0",
     "inquirer": "^8.0.0",
     "mysql": "^2.18.1"
   }

@@ -11,11 +11,11 @@ CREATE TABLE employee (
     role_id INT,
     manager_id INT
 )
-CREATE TABLE role (
+CREATE TABLE employeeRole (
     id INT PRIMARY KEY,
-    role_title VARCHAR(30),
-    salary DEC (10,2),
-    dept_id INT
+    role_title VARCHAR(30) NULL,
+    salary DECIMAL (10,4) NULL,
+    dept_id INT NULL
    
 );
 
