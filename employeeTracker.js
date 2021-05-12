@@ -163,9 +163,9 @@ addDepartment = () => {
         }
     ]).then(function(answer){
         console.log('answer2' ,answer)
-        connection.query(`INSERT INTO department (dept_name) VALUES ('${answer}')`, (err, res) => {
+        connection.query(`INSERT INTO department (dept_name) VALUES ('${answer.dept_name}')`, (err, res) => {
             if (err) throw err;
-            console.log('1 new department added: ' + answer);
+            console.log('1 new department added: ' + answer.dept_name);
             console.log('answer' , answer);
             getDepartments();
             start();            
