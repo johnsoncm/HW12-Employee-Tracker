@@ -7,7 +7,7 @@ console.log("test" , Manager);
 const cTable = require('console.table');
 let departments = [];
 let managers;
-let employees;
+let employees = [];
 let roles;
 
 //connect to server
@@ -228,7 +228,9 @@ addEmployee = () => {
     let roleOptions = [];
     for (i = 0; i < roles.length; i++) {
         roleOptions.push(Object(roles[i]));
+        
     };
+    console.log("role options" , roleOptions);
     let managerOptions = [];
     for (i = 0; i < managers.length; i++) {
         managerOptions.push(Object(managers[i]));
@@ -250,13 +252,15 @@ addEmployee = () => {
             name: "role_id",
             type: "list",
             message: "What is the role for this employee?",
-            choices: function() {
-                var choiceArray = [];
-                for (var i = 0; i < roleOptions.length; i++){
-                    choiceArray.push(roleOptions[i].title)
-                }
-                return choiceArray;
-            }
+            choices: roleOptions
+
+            // choices: function() {
+            //     var choiceArray = [];
+            //     for (var i = 0; i < roleOptions.length; i++){
+            //         choiceArray.push(roleOptions[i].title)
+            //     }
+            //     return choiceArray;
+            // }
         },
         {
             name: "manager_id",
@@ -283,7 +287,7 @@ addEmployee = () => {
                 manager_id = managerOptions[i].id
             }
         }
-        connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (${answer.first_name} , ${answer.last_name}, ${answer.role_id}, ${answer.manager_id})` , (err, res) => {
+        connection.query(`INSERT INTO employee (first_name, last_name, manager_id) VALUES ('${answer.first_name}' , '${answer.last_name}',  '${answer.manager_id}')` , (err, res) => {
             if (err) throw err;
             console.log('1 new employee added: ' + answer.first_name + "" + answer.last_name);
             getEmployees();
@@ -291,10 +295,12 @@ addEmployee = () => {
         })
     })
     };
+
+
     
-    function viewSomething(){
+     viewSomething = () => {
         inquirer
-        .prompt[(
+        .prompt([
             {
             name:'viewChoice',
             type: 'list',
@@ -302,7 +308,7 @@ addEmployee = () => {
             choices: ['Departments', 'Roles', 'Employees', 'Exit']
     
         }
-    )].then(answer => {
+        ]).then(answer => {
         
         if (answer.viewChoice === "Departments") {
            return viewDepartments();
@@ -331,7 +337,7 @@ addEmployee = () => {
 viewDepartments = () =>{
     connection.query("SELECT * FROM department" , (err, res) => {
         if (err) throw err;
-        console.log(err || result)
+        console.log(err || res)
     });
 
     cTable(res);
@@ -340,21 +346,24 @@ viewDepartments = () =>{
 }
 
 viewRoles = () => {
-    connection.query("SELECT r.id, r.role_title, r.salary, r.dept_id AS Department_Name FROM roles AS r INNER JOIN department AS d ON r.dept_id = d.id" , (err, res) =>{
+    connection.query("SELECT * FROM roles") , (err, res) => {
+    // ("SELECT r.id, r.role_title, r.salary, r.dept_id AS dept_name FROM roles AS r INNER JOIN department AS d ON r.dept_id = d.id") , (err, res) =>{
         if (err) throw err;
-        console.log(err || result);
-    });
+        console.log(err || res);
+    };
 
     cTable(res);
+    console.log("results", res);
     start();
-
 }
+// }
 
 viewEmployees = () => {
-    connection.query("SELECT e.id, e.first_name, e.last_name, d.name AS department, r.role_title, r.salary, CONCAT_WS('' , m.first_name, m.last_name) AS manager FROM employee e LEFT JOIN employee m ON m.id = e.manager_id INNER JOIN roles r ON e.role_id = r.id INNER JOIN department d ON r.dept_id = d.id ORDER BY e.id ASC" , (err, res)=>{
+    connection.query("SELECT e.id, e.first_name, e.last_name, d.dept_name AS department, r.role_title, r.salary, CONCAT_WS('' , m.first_name, m.last_name) AS manager FROM employee e LEFT JOIN employee m ON m.id = e.manager_id INNER JOIN roles r ON e.role_id = r.id INNER JOIN department d ON r.dept_id = d.id ORDER BY e.id ASC") , (err, res)=>{
         if (err) throw err;
-        console.log(err || result);
-    })
+        console.log("results" , res);
+        console.log("test" , err || res);
+    }
     cTable(res);
     start();
 }
@@ -404,21 +413,26 @@ updateEmployeeRole = () => {
                 return choiceArray;
             }
         }
-    ]).then(answer => {
+    ])
+    
+    .then(answer => {
         let roleOptions =[];
         for (var i = 0; i < roles.length; i ++){
             roleOptions.push(Object(roles[i]));
         };
-        for (i=0; i < employeeOptions.length; i++){
+        
+
+        for (var i = 0; i < employeeOptions.length; i++){
             employeeSelected = employeeOptions[i].id
         }
+    
     },
     inquirer.prompt ([
         {
             name: "newRole",
             type: "list",
             message: "Select new role:",
-            choices: function () {
+            choices: function (){
                 var choiceArray = [];
                 let roleOptions =[];
                 for (var i = 0; i < roleOptions.length; i++){
