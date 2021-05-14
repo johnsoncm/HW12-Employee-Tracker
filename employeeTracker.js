@@ -77,16 +77,16 @@ function start() {
     }
 
 
-    getRoles = () => {
-           connection.query('SELECT id, role_title FROM roles' , (err, res) => {
+    async function getRoles(){
+         connection.query('SELECT id, role_title FROM roles' , (err, res) => {
           
             if (err) throw err;
               roles = res;
-            
+         
         })
+     
         
-        
-    },
+    }
     
     getDepartments = () => {
         connection.query('SELECT id, dept_name FROM department', (err, res) => {
@@ -226,7 +226,8 @@ addDepartment = () => {
 
 
 
-addEmployee = () => {
+  async function addEmployee() {
+    await 
     getRoles();
     getManagers();
     let roleOptions = [];
