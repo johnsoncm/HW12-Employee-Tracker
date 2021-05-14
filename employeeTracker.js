@@ -78,10 +78,14 @@ function start() {
 
 
     getRoles = () => {
-        connection.query('SELECT id, role_title FROM roles' , (err, res) => {
+           connection.query('SELECT id, role_title FROM roles' , (err, res) => {
+          
             if (err) throw err;
-            roles = res;
+              roles = res;
+            
         })
+        
+        
     },
     
     getDepartments = () => {
