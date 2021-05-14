@@ -230,11 +230,13 @@ addEmployee = () => {
         roleOptions.push(Object(roles[i]));
         
     };
+  
     console.log("role options" , roleOptions);
     let managerOptions = [];
     for (i = 0; i < managers.length; i++) {
         managerOptions.push(Object(managers[i]));
     };
+  
     inquirer.prompt([
         {
             name: "first_name",
@@ -289,7 +291,7 @@ addEmployee = () => {
         }
         connection.query(`INSERT INTO employee (first_name, last_name, manager_id) VALUES ('${answer.first_name}' , '${answer.last_name}',  '${answer.manager_id}')` , (err, res) => {
             if (err) throw err;
-            console.log('1 new employee added: ' + answer.first_name + "" + answer.last_name);
+            console.log('1 new employee added: ' + answer.first_name + " " + answer.last_name);
             getEmployees();
             start();
         })
@@ -338,35 +340,42 @@ viewDepartments = () =>{
     connection.query("SELECT * FROM department" , (err, res) => {
         if (err) throw err;
         console.log(err || res)
+
+        console.table(res);
+        start();
     });
 
-    cTable(res);
-    start();
+   
 
 }
 
 viewRoles = () => {
-    connection.query("SELECT * FROM roles") , (err, res) => {
+    connection.query("SELECT * FROM roles" , (err, res) => {
     // ("SELECT r.id, r.role_title, r.salary, r.dept_id AS dept_name FROM roles AS r INNER JOIN department AS d ON r.dept_id = d.id") , (err, res) =>{
         if (err) throw err;
-        console.log(err || res);
-    };
+        console.log("hello" ,err || res);
 
-    cTable(res);
-    console.log("results", res);
-    start();
+        console.table(res);
+        console.log("results", res);
+        start();
+    });
+console.log("hello");
+   
 }
 // }
 
 viewEmployees = () => {
-    connection.query("SELECT e.id, e.first_name, e.last_name, d.dept_name AS department, r.role_title, r.salary, CONCAT_WS('' , m.first_name, m.last_name) AS manager FROM employee e LEFT JOIN employee m ON m.id = e.manager_id INNER JOIN roles r ON e.role_id = r.id INNER JOIN department d ON r.dept_id = d.id ORDER BY e.id ASC") , (err, res)=>{
+    connection.query("SELECT * FROM employee" , (err, res) => {
+    // ("SELECT e.id, e.first_name, e.last_name, d.dept_name AS department, r.role_title, r.salary, CONCAT_WS('' , m.first_name, m.last_name) AS manager FROM employee e LEFT JOIN employee m ON m.id = e.manager_id INNER JOIN roles r ON e.role_id = r.id INNER JOIN department d ON r.dept_id = d.id ORDER BY e.id ASC" , (err, res)=>{
         if (err) throw err;
-        console.log("results" , res);
-        console.log("test" , err || res);
-    }
-    cTable(res);
+        // console.log("results" , res);
+        // console.log("test" , err || res);
+        console.table(res);
     start();
-}
+    });
+    
+};
+// };
 
 //When user choose 'update' option they are prompted to choose what to update
 function updateSomething(){
@@ -391,6 +400,10 @@ function updateSomething(){
         connection.end();
     }
 })
+}
+
+updateEmployeeManager = () => {
+
 }
 
 
