@@ -87,7 +87,7 @@ function start() {
     getDepartments = () => {
         connection.query('SELECT id, dept_name FROM department', (err, res) => {
             if (err) throw err;
-            departments = res;
+            departments = res.map(department => (department.dept_name));
          })
     },
     
@@ -122,7 +122,7 @@ function addSomething() {
         }else if (answer.add === "Roles"){
             console.log('Add a new: ' + answer.add);
             addRole();
-        }else if (answer.add === 'Employee'){
+        }else if (answer.add === "Employees"){
             console.log('Add a new ' + answer.add);
             addEmployee();
         }else if (answer.add === 'Exit') {
@@ -130,9 +130,10 @@ function addSomething() {
                 console.log(err || result)
             });
                 connection.end();
-        }else {
-            connection.end();
         }
+        // else {
+        //     connection.end();
+        // }
 
 
     }
@@ -206,7 +207,7 @@ addDepartment = () => {
             }
         }
 
-        connection.query(`INSERT INTO roles (role_title, salary, dept_id) VALUES ('${answer.role_title}', '${answer.salary}', '${dept_id}')`, (err, res) => {
+        connection.query(`INSERT INTO roles (role_title, salary) VALUES ('${answer.title}', '${answer.salary}')`, (err, res) => {
             if (err) throw err;
 
             console.log('1 new role added: ' + answer.title);
