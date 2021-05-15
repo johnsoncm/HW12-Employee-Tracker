@@ -77,9 +77,33 @@ function start() {
     }
 
 
-    function getRoles() {
-        return connection.query('SELECT id, role_title FROM roles')
-       
+    async function getRoles() {
+        // const roles = connection.query('SELECT id, role_title FROM roles');
+        // console.log('roles.rows', roles.rows);
+        // return roles.rows;
+  
+      return new Promise((resolve, reject) => {
+        connection.query("SELECT * FROM roles" , (err, res) => {
+            if (err) reject (err);
+            // console.log("results from getRoles()", res);
+            resolve (res);
+      })
+           
+        })
+
+        // connection.query('SELECT id, role_title FROM roles' , (err, res) => {
+        //         if (err) throw err;
+        //         roles = res;
+        // })
+
+        // const sql = 'SELECT * FROM roles';
+        // const params = [];
+        // return connection.query(sql, params)
+        // .then(([rows, fields]) => {
+        //     console.log('rows', rows);
+        //     return rows;
+        // })
+        // .catch(err => console.log(err));
         
 
 }
@@ -149,11 +173,11 @@ addDepartment = () => {
             message: 'what department would you like to add'
         }
     ]).then(function(answer){
-        console.log('answer2' ,answer)
+        // console.log('answer2' ,answer)
         connection.query(`INSERT INTO department (dept_name) VALUES ('${answer.dept_name}')`, (err, res) => {
             if (err) throw err;
             console.log('1 new department added: ' + answer.dept_name);
-            console.log('answer' , answer);
+            // console.log('answer' , answer);
             getDepartments();
             start();         
 
@@ -222,18 +246,25 @@ addDepartment = () => {
 
 
 
-  function addEmployee() {
-    getRoles()
-    .then(function(err, res){
-        console.log("results", res)
+  async function addEmployee() {
+      console.log("inside add employee")
+    const allRoles = await getRoles();
+    console.log('all roles', allRoles);
+    // .then(function(err, res){
+    //     console.log("results", res)
        
-    });
-    getManagers();
+    // });
+    // getManagers();
+
     let roleOptions = [];
-    for (i = 0; i < roles.length; i++) {
-        roleOptions.push(Object(roles[i]));
+    for (i = 0; i < allRoles.length; i++) {
+        console.log('all roles' , allRoles[i].role_title);
+        roleOptions.push(allRoles[i].role_title);
+        
+        
         
     };
+
   
     console.log("role options" , roleOptions);
     let managerOptions = [];
@@ -406,18 +437,13 @@ function updateSomething(){
 })
 }
 
-updateEmployeeManager = () => {
+// updateEmployeeManager = () => {
 
-}
+// }
 
-
-updateEmployeeRole = () => {
-    let employeeOptions = [];
-
-    for(var i = 0; i < employees.length; i++) {
-        employeeOptions.push(Object(employees[i]));
-    }
-    inquirer.prompt([
+const pickEmployeeUpdate = async () =>{
+  let employeeOptions = employees;
+    return  inquirer.prompt([
         {
             name: "updateRole",
             type: "list",
@@ -432,51 +458,84 @@ updateEmployeeRole = () => {
         }
     ])
     
-    .then(answer => {
-        let roleOptions =[];
-        for (var i = 0; i < roles.length; i ++){
-            roleOptions.push(Object(roles[i]));
-        };
-        
-
-        for (var i = 0; i < employeeOptions.length; i++){
-            employeeSelected = employeeOptions[i].id
-        }
-    
-    },
-    inquirer.prompt ([
+ 
+}
+const pickNewEmployeeRole = async () => {
+    const roleOptions = await getRoles();
+    console.log('role options', roleOptions)
+ return inquirer.prompt ([
         {
             name: "newRole",
             type: "list",
             message: "Select new role:",
+            // choices: roleOptions,
             choices: function (){
                 var choiceArray = [];
-                let roleOptions =[];
                 for (var i = 0; i < roleOptions.length; i++){
-                    choiceArray.push(roleOptions[i].title)
+                    choiceArray.push(roleOptions[i].role_title)
                 }
                 return choiceArray;
             }
 
         }
-    ]).then(answer => {
-        for(var i = 0; i < roleOptions.length; i++){
-            if(answer.newRole === roleOptions[i].title) {
-                newChoice = roleOptions[i].id
-                connection.query(`UPDATE employee SET role_id = ${newChoice} WHERE id = ${employeeSelected}`) , (err, res) =>{
-                    if (err) throw err;
-                }
-            }
-        }
-        console.log("Role has been updated!");
-        getEmployees();
-        getRoles();
-        start();
-    })
-    
-    )
+        ])
+}
+
+const updateEmployeeRole = async () => {
+    let employeeOptions = [];
+const employeeToUpdate = await pickEmployeeUpdate();
+const newRole = await pickNewEmployeeRole();
+console.log("employee to update", employeeToUpdate);
+console.log("get new roles", newRole);
+    // query using this date ^
+
+    connection.query(`UPDATE employee SET role_id = ${"" + newRole.newRole + ""} WHERE id = ${"" + employeeToUpdate.updateRole + ""}`); (err, res) =>{
+
+
+                if (err) throw err;
+               
+            
+
+    };
 
 }
+
+//     connection.query("SELECT id, CONCAT_WS(' ' , first_name, last_name) AS Employee_Name from employee" , (err, res) => {
+//         if (err) throw err;
+//         employees = res;
+//     })
+// };
+
+//     connection.query("SELECT * FROM roles" , (err, res) => {
+//         if (err) reject (err);
+//         // console.log("results from getRoles()", res);
+//         resolve (res);
+//   })
+    
+
+    // console.log("employees and options", employeeOptions, employees);
+    
+
+    //function prompts user name, 2nd function prompts role change
+  
+//    .then(answer => {
+//         for(var i = 0; i < roleOptions.length; i++){
+//             if(answer.newRole === roleOptions[i].title) {
+//                 newChoice = roleOptions[i].id
+//                 connection.query(`UPDATE employee SET role_id = ${newChoice} WHERE id = ${employeeSelected}`) , (err, res) =>{
+//                     if (err) throw err;
+//                 }
+//             }
+//         }
+//         console.log("Role has been updated!");
+//         getEmployees();
+//         getRoles();
+//         start();
+//     })
+    
+//     )
+
+
 // when a use chooses to delete something, they are prompted to choose what to delete
 // function deleteSomething(){
 //     inquirer
