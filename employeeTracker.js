@@ -3,7 +3,6 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const figlet = require('figlet');
 const Manager = require('./Manager');
-console.log("test" , Manager);
 const cTable = require('console.table');
 let departments = [];
 let managers;
@@ -76,11 +75,8 @@ function start() {
         })
     }
 
-
+//function to get roles from mysql to use in later functions for updating, viewing, and adding
     async function getRoles() {
-        // const roles = connection.query('SELECT id, role_title FROM roles');
-        // console.log('roles.rows', roles.rows);
-        // return roles.rows;
   
       return new Promise((resolve, reject) => {
         connection.query("SELECT * FROM roles" , (err, res) => {
@@ -91,23 +87,11 @@ function start() {
            
         })
 
-        // connection.query('SELECT id, role_title FROM roles' , (err, res) => {
-        //         if (err) throw err;
-        //         roles = res;
-        // })
-
-        // const sql = 'SELECT * FROM roles';
-        // const params = [];
-        // return connection.query(sql, params)
-        // .then(([rows, fields]) => {
-        //     console.log('rows', rows);
-        //     return rows;
-        // })
-        // .catch(err => console.log(err));
-        
+          
 
 }
-    
+    //**********Block of get functions to retrieve data from mysql**********/
+
     getDepartments = () => {
         connection.query('SELECT id, dept_name FROM department', (err, res) => {
             if (err) throw err;
@@ -137,7 +121,7 @@ function addSomething() {
         name: 'add',
         type: 'list',
         message: 'What would you like to add?',
-        choices: ['Department' , 'Roles' , 'Employees']
+        choices: ['Department' , 'Roles' , 'Employee']
     }
     ]).then(function(answer) {
         if(answer.add === 'Department') {
@@ -146,7 +130,7 @@ function addSomething() {
         }else if (answer.add === "Roles"){
             console.log('Add a new: ' + answer.add);
             addRole();
-        }else if (answer.add === "Employees"){
+        }else if (answer.add === "Employee"){
             console.log('Add a new ' + answer.add);
             addEmployee();
         }else if (answer.add === 'Exit') {
@@ -165,6 +149,7 @@ function addSomething() {
 }
 
 //When user chooses to add a dept. they are given prompts to enter more information
+//then user entered data is inserted into the department table
 addDepartment = () => {
     inquirer.prompt([
         {
@@ -182,13 +167,7 @@ addDepartment = () => {
             start();         
 
         })
-        // .then(function(answer){
-        //     connection.query(`INSERT ALL departments (dept_name) VALUES (${answer.dept_name})` , (err, res) => {
-        //         if(err) throw err;
-
-        //     })
-        // })
-        //query to database to get all departments then response is push to departments array
+ 
     })
 }
 
@@ -201,7 +180,7 @@ addDepartment = () => {
         
         departmentOptions.push(Object(departments[i]));
     }
-    console.log('department options' , departmentOptions);
+    // console.log('department options' , departmentOptions);
 
     inquirer.prompt([
         {
@@ -223,7 +202,7 @@ addDepartment = () => {
             
 
         },
-  
+  //The user input data is then inserted into the roles table
     ]).then(function(answer){
         for (i = 0; i < departmentOptions.length; i++) {
             if (departmentOptions[i].name === answer.department_id){
@@ -247,18 +226,13 @@ addDepartment = () => {
 
 
   async function addEmployee() {
-      console.log("inside add employee")
+      
     const allRoles = await getRoles();
-    console.log('all roles', allRoles);
-    // .then(function(err, res){
-    //     console.log("results", res)
-       
-    // });
-    // getManagers();
+
 
     let roleOptions = [];
     for (i = 0; i < allRoles.length; i++) {
-        console.log('all roles' , allRoles[i].role_title);
+        // console.log('all roles' , allRoles[i].role_title);
         roleOptions.push(allRoles[i].role_title);
         
         
@@ -266,7 +240,7 @@ addDepartment = () => {
     };
 
   
-    console.log("role options" , roleOptions);
+    // console.log("role options" , roleOptions);
     let managerOptions = [];
     for (i = 0; i < managers.length; i++) {
         managerOptions.push(Object(managers[i]));
@@ -291,13 +265,7 @@ addDepartment = () => {
             message: "What is the role for this employee?",
             choices: roleOptions
 
-            // choices: function() {
-            //     var choiceArray = [];
-            //     for (var i = 0; i < roleOptions.length; i++){
-            //         choiceArray.push(roleOptions[i].title)
-            //     }
-            //     return choiceArray;
-            // }
+    
         },
         {
             name: "manager_id",
@@ -334,7 +302,8 @@ addDepartment = () => {
     };
 
 
-    
+    //****Block of view functions to view departments, roles, and employees****/
+
      viewSomething = () => {
         inquirer
         .prompt([
@@ -359,6 +328,7 @@ addDepartment = () => {
         else if(answer.viewChoice === "Exit"){
          return   figlet('Goodbye!' , (err, result) => {
                 console.log(err || result);
+                connection.end();
             })
         }else {
             connection.end();
@@ -374,7 +344,7 @@ addDepartment = () => {
 viewDepartments = () =>{
     connection.query("SELECT * FROM department" , (err, res) => {
         if (err) throw err;
-        console.log(err || res)
+        // console.log(err || res)
 
         console.table(res);
         start();
@@ -386,22 +356,20 @@ viewDepartments = () =>{
 
 viewRoles = () => {
     connection.query("SELECT * FROM roles" , (err, res) => {
-    // ("SELECT r.id, r.role_title, r.salary, r.dept_id AS dept_name FROM roles AS r INNER JOIN department AS d ON r.dept_id = d.id") , (err, res) =>{
         if (err) throw err;
-        console.log("hello" ,err || res);
+        // console.log("hello" ,err || res);
 
         console.table(res);
-        console.log("results", res);
+        // console.log("results", res);
         start();
     });
-console.log("hello");
+
    
 }
 // }
 
 viewEmployees = () => {
     connection.query("SELECT * FROM employee" , (err, res) => {
-    // ("SELECT e.id, e.first_name, e.last_name, d.dept_name AS department, r.role_title, r.salary, CONCAT_WS('' , m.first_name, m.last_name) AS manager FROM employee e LEFT JOIN employee m ON m.id = e.manager_id INNER JOIN roles r ON e.role_id = r.id INNER JOIN department d ON r.dept_id = d.id ORDER BY e.id ASC" , (err, res)=>{
         if (err) throw err;
         // console.log("results" , res);
         // console.log("test" , err || res);
@@ -410,7 +378,7 @@ viewEmployees = () => {
     });
     
 };
-// };
+
 
 //When user choose 'update' option they are prompted to choose what to update
 function updateSomething(){
@@ -419,7 +387,7 @@ function updateSomething(){
         name: 'update',
         type: 'list',
         message: 'What would you like to update?',
-        choices: ['Employee Roles', 'Employee Managers' , 'Exit']
+        choices: ['Employee Roles', 'Exit']
     }
 ]).then(answer => {
     if (answer.update === "Employee Roles") {
@@ -437,9 +405,6 @@ function updateSomething(){
 })
 }
 
-// updateEmployeeManager = () => {
-
-// }
 
 const pickEmployeeUpdate = async () =>{
   let employeeOptions = employees;
@@ -462,7 +427,7 @@ const pickEmployeeUpdate = async () =>{
 }
 const pickNewEmployeeRole = async () => {
     const roleOptions = await getRoles();
-    console.log('role options', roleOptions)
+    // console.log('role options', roleOptions)
  return inquirer.prompt ([
         {
             name: "newRole",
@@ -485,11 +450,12 @@ const updateEmployeeRole = async () => {
     let employeeOptions = [];
 const employeeToUpdate = await pickEmployeeUpdate();
 const newRole = await pickNewEmployeeRole();
-console.log("employee to update", employeeToUpdate);
-console.log("get new roles", newRole);
+// console.log("employee to update", employeeToUpdate);
+// console.log("get new roles", newRole);
+// console.log("new role" , newRole.newRole);
     // query using this date ^
 
-    connection.query(`UPDATE employee SET role_id = ${"" + newRole.newRole + ""} WHERE id = ${"" + employeeToUpdate.updateRole + ""}`); (err, res) =>{
+    connection.query(`UPDATE employee SET role_id = "${newRole.newRole}" WHERE id = "${employeeToUpdate.updateRole}"`); (err, res) =>{
 
 
                 if (err) throw err;
@@ -497,55 +463,10 @@ console.log("get new roles", newRole);
             
 
     };
+    console.log('New role updated!');
+    start();
 
 }
-
-//     connection.query("SELECT id, CONCAT_WS(' ' , first_name, last_name) AS Employee_Name from employee" , (err, res) => {
-//         if (err) throw err;
-//         employees = res;
-//     })
-// };
-
-//     connection.query("SELECT * FROM roles" , (err, res) => {
-//         if (err) reject (err);
-//         // console.log("results from getRoles()", res);
-//         resolve (res);
-//   })
-    
-
-    // console.log("employees and options", employeeOptions, employees);
-    
-
-    //function prompts user name, 2nd function prompts role change
-  
-//    .then(answer => {
-//         for(var i = 0; i < roleOptions.length; i++){
-//             if(answer.newRole === roleOptions[i].title) {
-//                 newChoice = roleOptions[i].id
-//                 connection.query(`UPDATE employee SET role_id = ${newChoice} WHERE id = ${employeeSelected}`) , (err, res) =>{
-//                     if (err) throw err;
-//                 }
-//             }
-//         }
-//         console.log("Role has been updated!");
-//         getEmployees();
-//         getRoles();
-//         start();
-//     })
-    
-//     )
-
-
-// when a use chooses to delete something, they are prompted to choose what to delete
-// function deleteSomething(){
-//     inquirer
-//     .prompt({
-//         name: 'delete',
-//         type: 'list',
-//         message: 'What would you like to delete?',
-//         choices: ['Delete Department', 'Delete Employee', 'Delete Role', 'Exit']
-//     });
-// }
 
 
    
